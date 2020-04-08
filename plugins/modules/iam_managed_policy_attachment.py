@@ -94,9 +94,12 @@ try:
 except ImportError:
     pass  # caught by imported HAS_BOTO3
 
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.ec2 import (boto3_conn, HAS_BOTO3, ec2_argument_spec,
-                                      get_aws_connection_info, camel_dict_to_snake_dict)
+from ansible_collections.amazon.aws.plugins.module_utils.aws.core import AnsibleAWSModule
+from ansible_collections.amazon.aws.plugins.module_utils.ec2 import (boto3_conn, HAS_BOTO3,
+                                                                     ec2_argument_spec,
+                                                                     get_aws_connection_info,
+                                                                     camel_dict_to_snake_dict)
+
 
 def is_policy_present(policies, policy_arn):
     policy_present = False
@@ -105,6 +108,7 @@ def is_policy_present(policies, policy_arn):
             policy_present = True
             break
     return policy_present
+
 
 def get_attached_role_policies(module, iam, role_name):
     try:
@@ -120,6 +124,7 @@ def get_attached_role_policies(module, iam, role_name):
                          **camel_dict_to_snake_dict(e.response))
     return policies
 
+
 def get_attached_user_policies(module, iam, user_name):
     try:
         response = iam.list_attached_user_policies(UserName=user_name)
@@ -134,6 +139,7 @@ def get_attached_user_policies(module, iam, user_name):
                          **camel_dict_to_snake_dict(e.response))
     return policies
 
+
 def get_attached_group_policies(module, iam, group_name):
     try:
         response = iam.list_attached_group_policies(GroupName=group_name)
@@ -147,6 +153,7 @@ def get_attached_group_policies(module, iam, group_name):
                          exception=traceback.format_exc(),
                          **camel_dict_to_snake_dict(e.response))
     return policies
+
 
 def role_action(module, iam, role_name, policy_arn, state):
     changed = False
@@ -181,6 +188,7 @@ def role_action(module, iam, role_name, policy_arn, state):
 
     return changed, policies
 
+
 def user_action(module, iam, user_name, policy_arn, state):
     changed = False
     policies = get_attached_user_policies(module, iam, user_name)
@@ -214,6 +222,7 @@ def user_action(module, iam, user_name, policy_arn, state):
 
     return changed, policies
 
+
 def group_action(module, iam, group_name, policy_arn, state):
     changed = False
     policies = get_attached_group_policies(module, iam, group_name)
@@ -246,6 +255,7 @@ def group_action(module, iam, group_name, policy_arn, state):
         policies = get_attached_group_policies(module, iam, group_name)
 
     return changed, policies
+
 
 def main():
     argument_spec = ec2_argument_spec()
@@ -296,6 +306,7 @@ def main():
                      policies=current_policies)
 
 # end main
+
 
 if __name__ == '__main__':
     main()
